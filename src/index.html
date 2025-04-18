@@ -7,7 +7,25 @@
     <title>Vanilla App Template</title>
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
+
   <body>
-    <script type="module" src="./main.js"></script>
+    <form class="form">
+      <label>
+        <input
+          type="text"
+          name="search-text"
+          placeholder="Search images..."
+          required
+        />
+      </label>
+      <button type="submit">Search</button>
+    </form>
+
+    <ul class="gallery"></ul>
+
+    <button class="js-load-more load-more-hidden">Load more</button>
+    <span class="loader hidden"></span>
+
+    <script class="btn-submit" type="module" src="./main.js"></script>
   </body>
 </html>
