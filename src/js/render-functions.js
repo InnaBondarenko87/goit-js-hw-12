@@ -1,7 +1,7 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const imageList = document.querySelector('.gallery');
+export const imageList = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 let lightbox = null;
 
@@ -66,4 +66,15 @@ export function showLoader() {
 
 export function hideLoader() {
   loader.classList.add('hidden');
+}
+export function smoothScroll() {
+  const galleryItem = document.querySelector('.gallery-item');
+  if (galleryItem) {
+    const { height } = galleryItem.getBoundingClientRect();
+    window.scrollBy({
+      left: 0,
+      top: height * 3,
+      behavior: 'smooth',
+    });
+  }
 }
