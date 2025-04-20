@@ -67,6 +67,7 @@ export function showLoader() {
 export function hideLoader() {
   loader.classList.add('hidden');
 }
+
 export function smoothScroll() {
   const galleryItem = document.querySelector('.gallery-item');
   if (galleryItem) {
@@ -76,5 +77,21 @@ export function smoothScroll() {
       top: height * 3,
       behavior: 'smooth',
     });
+  }
+}
+
+export function showLoadMoreButton() {
+  const btn = document.querySelector('.load-more-hidden, .js-load-more');
+  if (btn) {
+    btn.classList.remove('load-more-hidden');
+    btn.classList.add('js-load-more');
+  }
+}
+
+export function hideLoadMoreButton() {
+  const btn = document.querySelector('.js-load-more, .load-more-hidden');
+  if (btn) {
+    btn.classList.remove('js-load-more');
+    btn.classList.add('load-more-hidden');
   }
 }

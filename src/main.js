@@ -7,20 +7,23 @@ import {
   showLoader,
   hideLoader,
   smoothScroll,
+  showLoadMoreButton,
+  hideLoadMoreButton,
 } from './js/render-functions';
 
 const form = document.querySelector('.form');
 const searchInput = document.querySelector('input');
-const loadMore = document.querySelector('.js-load-more');
+const loadMore = document.querySelector('.load-more-hidden, .js-load-more');
 
 let page = 1;
 let enteredInput = '';
+let totalPages = 0;
 
 form.addEventListener('submit', handleSubmit);
 loadMore.addEventListener('click', onLoadMore);
-loadMore.classList.replace('js-load-more', 'load-more-hidden');
+hideLoadMoreButton();
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   enteredInput = searchInput.value.trim();
   page = 1;
@@ -37,63 +40,57 @@ function handleSubmit(event) {
 
   showLoader();
   clearGallery();
-  loadMore.classList.replace('js-load-more', 'load-more-hidden');
+  hideLoadMoreButton();
 
-  getImagesByQuery(enteredInput, page)
-    .then(response => {
-      const data = response.data;
+  try {
+    const data = await getImagesByQuery(enteredInput, page);
 
-      if (!data.hits || data.hits.length === 0) {
-        iziToast.warning({
-          position: 'topRight',
-          title: 'Warning',
-          message: 'Sorry, no images found. Please try another query!',
-        });
-        return;
-      }
-
-      if (data.hits.length < data.totalHits) {
-        loadMore.classList.replace('load-more-hidden', 'js-load-more');
-      } else {
-        loadMore.classList.replace('js-load-more', 'load-more-hidden');
-      }
-      createGallery(data.hits);
-    })
-    .catch(error => {
-      iziToast.error({
+    if (!data.hits || data.hits.length === 0) {
+      iziToast.warning({
         position: 'topRight',
-        title: 'Error',
-        message: 'Failed to fetch images. Please try again later.',
+        title: 'Warning',
+        message: 'Sorry, no images found. Please try another query!',
       });
-      console.error('Error:', error);
-    })
-    .finally(() => {
-      hideLoader();
-      searchInput.value = '';
+      return;
+    }
+
+    totalPages = Math.ceil(data.totalHits / 15);
+    createGallery(data.hits);
+
+    if (page < totalPages) {
+      showLoadMoreButton();
+    }
+  } catch (error) {
+    iziToast.error({
+      position: 'topRight',
+      title: 'Error',
+      message: 'Failed to fetch images. Please try again later.',
     });
+    console.error('Error:', error);
+  } finally {
+    hideLoader();
+    searchInput.value = '';
+  }
 }
 
 async function onLoadMore() {
   page++;
   loadMore.disabled = true;
-  loadMore.classList.replace('js-load-more', 'load-more-hidden');
+  hideLoadMoreButton();
   showLoader();
 
   try {
-    const response = await getImagesByQuery(enteredInput, page);
-    const data = response.data;
-
+    const data = await getImagesByQuery(enteredInput, page);
     createGallery(data.hits);
     smoothScroll();
 
-    const totalPages = Math.ceil(data.totalHits / 15);
-    if (page >= totalPages) {
+    if (page < totalPages) {
+      showLoadMoreButton();
+    } else {
       iziToast.info({
         position: 'topRight',
         message: "We're sorry, but you've reached the end of search results.",
       });
-    } else {
-      loadMore.classList.replace('load-more-hidden', 'js-load-more');
     }
   } catch (error) {
     iziToast.error({
